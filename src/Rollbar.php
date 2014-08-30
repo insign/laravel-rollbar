@@ -45,7 +45,11 @@ class Rollbar extends RollbarNotifier {
         // a job to the queue instead of sending it to Rollbar directly.
         if ($this->queue)
         {
-            $this->queue->push('Jenssegers\Rollbar\Job', $payload);
+           Queue::push(function ($job) use ($payload) {
+              parent::send_payload($payload);
+              
+              $job->delete();
+           });
         }
 
         // Otherwise we will just execute the original send_payload method.
